@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#111827;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{
+color:#22c55e;
+margin-bottom:30px;
+}
+.sidebar a{
+display:block;
+color:#d1d5db;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#1f2937;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#22c55e;
+padding:15px 20px;
+border-radius:12px;
+color:#052e16;
+}
+
+/* CARDS */
+.cards{
+display:flex;
+gap:20px;
+margin:20px 0;
+flex-wrap:wrap;
+}
+.card{
+flex:1;
+min-width:200px;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+.card h3{color:#22c55e;}
+.card p{color:#555;}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:20px;
+}
+
+/* JOBS */
+.jobs{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+.job{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px 0;
+border-bottom:1px solid #eee;
+}
+.job:last-child{border:none;}
+
+.apply{
+background:#22c55e;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* APPLICATION STATUS */
+.apps{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+.status{
+display:block;
+padding:8px 0;
+border-bottom:1px solid #eee;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.grid{grid-template-columns:1fr;}
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>Student Panel</h2>
+<a href="StudentDashboard.html" class="active">🏠 Dashboard</a>
+<a href="../Authentication/STUDENT DETAILS.html">💼 Upload Details</a>
+<a href="Job Listings Page.html" >📄Jobs</a>
+<a href="Applied Jobs Page.html">📄 Applications</a>
+<a href="Profile Page.html">👤 Profile</a>
+<a href="Notifications Page.html" >🔔 Notifications</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a> 
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Welcome, Student 👨‍🎓</h3>
+<span>Your placement progress</span>
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+<div class="card">
+<h3 id="totalJobs">0</h3>
+<p>Jobs Available</p>
+</div>
+<div class="card">
+<h3 id="totalApplications">0</h3>
+<p>Applications Sent</p>
+</div>
+<div class="card">
+<h3 id="shortlisted">0</h3>
+<p>Shortlisted</p>
+</div>
+<div class="card">
+<h3 id="offers">0</h3>
+<p>Offers Received</p>
+</div>
+</div>
+
+<!-- GRID -->
+<div class="grid">
+
+<!-- JOB LIST -->
+<div class="jobs">
+
+<h3>Latest Jobs</h3>
+
+<div id="latestJobsContainer">
+
+</div>
+
+</div>
+
+<!-- APPLICATION STATUS -->
+<div class="apps">
+
+<h3>Your Applications</h3>
+
+<div id="applicationStatusContainer">
+
+</div>
+
+</div>
+</body>
+<script>
+
+const studentId =
+localStorage.getItem("userid")
+
+/* LOGIN CHECK */
+
+if(!studentId){
+
+    alert("Please Login First")
+
+    window.location.href =
+    "../Authentication/LoginPage.html"
+
+}
+
+/* FETCH DASHBOARD DATA */
+
+fetch(
+`http://localhost:4000/student/dashboard/${studentId}`
+)
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    console.log(data)
+
+    if(data.success){
+
+        const dashboard =
+        data.dashboardData
+
+        /* CARDS */
+
+        document.getElementById(
+        "totalJobs"
+        ).innerText =
+        dashboard.totalJobs
+
+        document.getElementById(
+        "totalApplications"
+        ).innerText =
+        dashboard.totalApplications
+
+        document.getElementById(
+        "shortlisted"
+        ).innerText =
+        dashboard.shortlisted
+
+        document.getElementById(
+        "offers"
+        ).innerText =
+        dashboard.offers
+
+        /* LATEST JOBS */
+
+        const latestJobsContainer =
+        document.getElementById(
+        "latestJobsContainer"
+        )
+
+        latestJobsContainer.innerHTML = ""
+
+        dashboard.latestJobs.forEach((job)=>{
+
+            latestJobsContainer.innerHTML += `
+
+            <div class="job">
+
+                <span>
+
+                ${job.company_name}
+                -
+                ${job.role}
+                (${job.package})
+
+                </span>
+
+                <button
+                class="apply"
+                onclick="applyJob(${job.id})"
+                >
+
+                Apply
+
+                </button>
+
+            </div>
+
+            `
+
+        })
+
+        /* APPLICATION STATUS */
+
+        const applicationStatusContainer =
+        document.getElementById(
+        "applicationStatusContainer"
+        )
+
+        applicationStatusContainer.innerHTML = ""
+
+        dashboard.applicationStatus.forEach((app)=>{
+
+            applicationStatusContainer.innerHTML += `
+
+            <span class="status">
+
+            ${app.company_name}
+            -
+            ${app.status}
+
+            </span>
+
+            `
+
+        })
+
+    }
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+})
+
+/* APPLY JOB */
+
+function applyJob(jobId){
+
+    fetch(
+    "http://localhost:4000/tpo/apply-job",
+    {
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            student_id:studentId,
+
+            job_id:jobId
+
+        })
+
+    })
+
+    .then((response)=>response.json())
+
+    .then((data)=>{
+
+        alert(data.message)
+
+        if(data.success){
+
+            location.reload()
+
+        }
+
+    })
+
+}
+
+</script>
+</html>

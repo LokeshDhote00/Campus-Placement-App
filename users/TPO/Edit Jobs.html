@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Job</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#1e293b;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{color:#38bdf8;margin-bottom:30px;}
+.sidebar a{
+display:block;
+color:#cbd5f5;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#334155;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#38bdf8;
+padding:15px 20px;
+border-radius:12px;
+color:#0f172a;
+}
+
+/* FORM */
+.form-box{
+margin-top:20px;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+max-width:700px;
+}
+
+.form-box h3{
+margin-bottom:15px;
+}
+
+.form-group{
+margin-bottom:15px;
+}
+
+.form-group label{
+display:block;
+margin-bottom:5px;
+font-size:14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+textarea{
+resize:none;
+height:100px;
+}
+
+/* BUTTON */
+.btn{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:#3b82f6;
+color:white;
+margin-top:10px;
+}
+
+.btn:hover{
+background:#2563eb;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>TPO Panel</h2>
+<a href="TPODashboard.html">🏠 Dashboard</a>
+<a href="Post Job Page.html">💼 Post Job</a>
+<a href="View Applications Page.html">📄 Applications</a>
+<a href="Student List Page.html">👨‍🎓 Students</a>
+<a href="Manage Jobs Page.html" class="active">📋 Manage Jobs</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Edit Job ✏️</h3>
+<span>Update job details</span>
+</div>
+
+<!-- FORM -->
+<div class="form-box">
+
+<h3>Job Information</h3>
+
+<form onsubmit="updateJob(event)">
+
+<div class="form-group">
+<label>Company Name</label>
+<input type="text" id="company">
+</div>
+
+<div class="form-group">
+<label>Job Role</label>
+<input type="text" id="role">
+</div>
+
+<div class="form-group">
+<label>Package (LPA)</label>
+<input type="number" id="package">
+</div>
+
+<div class="form-group">
+<label>Location</label>
+<input type="text" id="location">
+</div>
+
+<div class="form-group">
+<label>Application Deadline</label>
+<input type="date" id="deadline">
+</div>
+
+<div class="form-group">
+<label>Job Description</label>
+<textarea id="description"></textarea>
+</div>
+
+<div class="form-group">
+<label>Status</label>
+<select id="status">
+<option selected>Active</option>
+<option>Closed</option>
+</select>
+</div>
+
+<button class="btn">Update Job</button>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+<script>
+
+/* GET JOB ID FROM URL */
+
+const params =
+new URLSearchParams(window.location.search)
+
+const jobId = params.get("id")
+
+/* INPUTS */
+
+const companyInput =
+document.getElementById("company")
+
+const roleInput =
+document.getElementById("role")
+
+const packageInput =
+document.getElementById("package")
+
+const locationInput =
+document.getElementById("location")
+
+const deadlineInput =
+document.getElementById("deadline")
+
+const descriptionInput =
+document.getElementById("description")
+
+const statusInput =
+document.getElementById("status")
+
+/* CHECK JOB ID */
+
+if(!jobId){
+
+    alert("Job ID Not Found")
+
+    window.location.href =
+    "Manage Jobs Page.html"
+
+}
+
+/* FETCH SINGLE JOB */
+
+fetch(
+`http://localhost:4000/tpo/job/${jobId}`
+)
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    console.log(data)
+
+    if(data.success === false){
+
+        alert(data.message)
+
+        return
+
+    }
+
+    const job = data.data
+
+    /* FILL FORM */
+
+    companyInput.value =
+    job.company_name || ""
+
+    roleInput.value =
+    job.role || ""
+
+    packageInput.value =
+    job.package || ""
+
+    locationInput.value =
+    job.location || ""
+
+    /* DATE FIX */
+
+    if(job.deadline){
+
+        deadlineInput.value =
+        job.deadline.split("T")[0]
+
+    }
+
+    descriptionInput.value =
+    job.description || ""
+
+    statusInput.value =
+    job.status || "Active"
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+    alert("Failed To Load Job")
+
+})
+
+/* UPDATE JOB */
+
+function updateJob(event){
+
+    event.preventDefault()
+
+    fetch(
+    "http://localhost:4000/tpo/update-job",
+    {
+
+        method:"PUT",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            id:jobId,
+
+            company_name:
+            companyInput.value,
+
+            role:
+            roleInput.value,
+
+            package:
+            packageInput.value,
+
+            location:
+            locationInput.value,
+
+            deadline:
+            deadlineInput.value,
+
+            description:
+            descriptionInput.value,
+
+            status:
+            statusInput.value
+
+        })
+
+    })
+
+    .then((response)=>response.json())
+
+    .then((data)=>{
+
+        console.log(data)
+
+        alert(data.message)
+
+        if(data.success){
+
+            window.location.href =
+            "Manage Jobs Page.html"
+
+        }
+
+    })
+
+    .catch((err)=>{
+
+        console.log(err)
+
+        alert("Update Failed")
+
+    })
+
+}
+
+</script>
+</html>

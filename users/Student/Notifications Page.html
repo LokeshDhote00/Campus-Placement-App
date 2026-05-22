@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notifications</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#111827;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{color:#22c55e;margin-bottom:30px;}
+.sidebar a{
+display:block;
+color:#d1d5db;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#1f2937;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+background:#22c55e;
+padding:15px 20px;
+border-radius:12px;
+color:#052e16;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* NOTIFICATION LIST */
+.notifications{
+margin-top:20px;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.note{
+padding:15px;
+border-bottom:1px solid #eee;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+.note:last-child{border:none;}
+
+/* TYPES */
+.success{border-left:4px solid #22c55e;}
+.info{border-left:4px solid #3b82f6;}
+.warning{border-left:4px solid #f59e0b;}
+.danger{border-left:4px solid #ef4444;}
+
+.note-text{
+max-width:80%;
+}
+.note-text p{
+font-size:14px;
+color:#333;
+}
+.time{
+font-size:12px;
+color:#777;
+}
+
+/* BUTTON */
+.btn{
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+background:#e5e7eb;
+}
+.btn:hover{background:#d1d5db;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>Student Panel</h2>
+<a href="StudentDashboard.html">🏠 Dashboard</a>
+<a href="../Authentication/STUDENT DETAILS.html">💼 Upload Details</a>
+<a href="Job Listings Page.html" >📄Jobs</a>
+<a href="Applied Jobs Page.html">📄 Applications</a>
+<a href="Profile Page.html">👤 Profile</a>
+<a href="Notifications Page.html" class="active">🔔 Notifications</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Notifications 🔔</h3>
+<button class="btn">Mark All Read</button>
+</div>
+
+<!-- NOTIFICATIONS -->
+
+<div
+class="notifications"
+id="notificationsContainer"
+>
+
+</div>
+
+
+</div>
+
+</body>
+<script>
+
+const userid =
+localStorage.getItem("userid")
+
+const notificationsContainer =
+document.getElementById(
+"notificationsContainer"
+)
+
+/* LOGIN CHECK */
+
+if(!userid){
+
+    alert("Please Login First")
+
+    window.location.href =
+    "../Authentication/LoginPage.html"
+
+}
+
+/* FETCH NOTIFICATIONS */
+
+fetch(
+`http://localhost:4000/student/notifications/${userid}`
+)
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    console.log(data)
+
+    notificationsContainer.innerHTML = ""
+
+    /* NO NOTIFICATIONS */
+
+    if(data.data.length === 0){
+
+        notificationsContainer.innerHTML = `
+
+        <div class="note info">
+
+            <div class="note-text">
+
+                <p>
+                No Notifications Found
+                </p>
+
+            </div>
+
+        </div>
+
+        `
+
+        return
+    }
+
+    /* SHOW NOTIFICATIONS */
+
+    data.data.forEach((note)=>{
+
+        notificationsContainer.innerHTML += `
+
+        <div class="note ${note.type}">
+
+            <div class="note-text">
+
+                <p>
+
+                ${note.message}
+
+                </p>
+
+                <span class="time">
+
+                ${new Date(
+                    note.created_at
+                ).toLocaleString()}
+
+                </span>
+
+            </div>
+
+            <button class="btn">
+
+            View
+
+            </button>
+
+        </div>
+
+        `
+
+    })
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+    notificationsContainer.innerHTML = `
+
+    <div class="note danger">
+
+        <div class="note-text">
+
+            <p>
+            Error Loading Notifications
+            </p>
+
+        </div>
+
+    </div>
+
+    `
+
+})
+
+</script>
+</html>

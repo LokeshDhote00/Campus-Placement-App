@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Placement Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 350px;
+      padding: 30px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    .container h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      outline: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .input-group input::placeholder {
+      color: #ddd;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #ff7a18;
+      background: linear-gradient(45deg, #ff7a18, #ffb347);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .extra {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .extra a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+
+    .extra a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        width: 90%;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Login</h2>
+
+    <form onsubmit="return verify()">
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="passw" placeholder="Enter your password" required>
+      </div>
+
+      <button class="btn" type="submit">Login</button>
+    </form>
+
+    <div class="extra">
+      <p><a href="Forgot Password.html">Forgot Password?</a></p>
+      <p>Don't have an account? <a href="Signup Page.html">Sign Up</a></p>
+    </div>
+  </div>
+
+</body>
+<!-- <script>
+  uemail=document.getElementById("email")
+  upass=document.getElementById("passw")
+ async function verify() {
+  const payload={
+    email:uemail.value,
+    password:upass.value
+  }
+   const Rawresponse=await fetch("http://localhost:4000/auth/login",{
+            method:"POST",
+            headers:{
+                "content-type":"application/json"
+            },
+            body:JSON.stringify(payload)
+        })
+
+        const APIresponse=await Rawresponse.json()
+        alert(APIresponse.message)
+ }
+
+</script> -->
+<script>
+
+const uemail = document.getElementById("email")
+const upass = document.getElementById("passw")
+
+async function verify() {
+
+    const payload = {
+        email: uemail.value,
+        password: upass.value
+    }
+
+    const Rawresponse = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: {
+            "content-type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+
+    const APIresponse = await Rawresponse.json()
+
+    alert(APIresponse.message)
+
+    if(APIresponse.success){
+      localStorage.setItem("userid",APIresponse.userid)
+      const role = APIresponse.role.toLowerCase()
+      //  console.log(APIresponse.role)
+        if(role === "tpo"){
+
+            window.location.href = "../TPO/TPODashboard.html"
+
+        }
+        else if(role === "student"){
+
+            window.location.href = "../Student/StudentDashboard.html"
+            //  window.location.href = "../Student/StudentDashboard.html"
+        }
+        else if(role === "admin"){
+
+            window.location.href = "../Admin/AdminDashboard.html"
+
+        }
+
+    }
+
+    return false
+}
+</script>
+</html>

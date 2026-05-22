@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify OTP - Placement Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 350px;
+      padding: 30px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      color: white;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #ddd;
+      margin-bottom: 20px;
+    }
+
+    .otp-box {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .otp-box input {
+      width: 40px;
+      height: 45px;
+      text-align: center;
+      font-size: 18px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(45deg, #00c6ff, #0072ff);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .extra {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .extra a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+
+    .extra a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Verify OTP</h2>
+    <p>Enter the 6-digit code sent to your email</p>
+
+    <form>
+      <div class="otp-box">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+      </div>
+
+      <button class="btn">Verify</button>
+    </form>
+
+    <div class="extra">
+      <p><a href="#" onclick="resendOtp(event)">Resend OTP</a></p>
+    </div>
+  </div>
+
+</body>
+<script>
+
+const inputs = document.querySelectorAll(".otp-box input");
+
+function getOtp(){
+    let otp = "";
+    inputs.forEach(i => otp += i.value);
+    return otp;
+}
+
+document.querySelector("form").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const enteredOtp = getOtp();
+    const storedOtp = localStorage.getItem("otp");
+
+    if(enteredOtp === storedOtp){
+
+        alert("OTP Verified");
+
+        window.location.href = "ResetPassword.html";
+    } else {
+        alert("Wrong OTP");
+    }
+});
+
+async function resendOtp(e){
+    e.preventDefault();
+
+    const email = localStorage.getItem("resetEmail");
+
+    const res = await fetch("http://localhost:4000/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    alert("New OTP sent");
+
+    if(data.success){
+        localStorage.setItem("otp", data.otp);
+        console.log("New OTP:", data.otp);
+    }
+}
+</script>
+</html>

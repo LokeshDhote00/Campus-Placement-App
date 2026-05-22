@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Applied Jobs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+display:flex;
+background:#f1f5f9;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:230px;
+height:100vh;
+background:#111827;
+color:white;
+padding:20px;
+position:fixed;
+}
+
+.sidebar h2{
+color:#22c55e;
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:block;
+color:#d1d5db;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+
+.sidebar a:hover,
+.sidebar a.active{
+background:#1f2937;
+color:white;
+}
+
+/* MAIN */
+
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+
+.topbar{
+background:#22c55e;
+padding:15px 20px;
+border-radius:12px;
+color:#052e16;
+display:flex;
+justify-content:space-between;
+}
+
+/* TABLE */
+
+.table{
+margin-top:20px;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+overflow-x:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+tr:hover{
+background:#f9fafc;
+}
+
+/* STATUS */
+
+.status{
+padding:5px 10px;
+border-radius:20px;
+color:white;
+font-size:12px;
+}
+
+.pending{
+background:#f59e0b;
+}
+
+.shortlisted{
+background:#3b82f6;
+}
+
+.rejected{
+background:#ef4444;
+}
+
+.selected{
+background:#22c55e;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+.sidebar{
+width:180px;
+}
+
+.main{
+margin-left:180px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<h2>Student Panel</h2>
+
+<a href="StudentDashboard.html">🏠 Dashboard</a>
+
+<a href="../Authentication/STUDENT DETAILS.html">
+💼 Upload Details
+</a>
+
+<a href="Job Listings Page.html">
+📄 Jobs
+</a>
+
+<a href="Applied Jobs Page.html" class="active">
+📄 Applications
+</a>
+
+<a href="Profile Page.html">
+👤 Profile
+</a>
+
+<a href="Notifications Page.html">
+🔔 Notifications
+</a>
+
+<a href="../Authentication/LoginPage.html">
+🚪 Logout
+</a>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+
+<h3>Applied Jobs 📄</h3>
+
+<span>Track your applications</span>
+
+</div>
+
+<!-- TABLE -->
+
+<div class="table">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Company</th>
+
+<th>Role</th>
+
+<th>Applied Date</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody id="appliedJobsContainer">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const appliedJobsContainer =
+document.getElementById("appliedJobsContainer")
+
+/* LOGIN USER ID */
+
+const studentId =
+localStorage.getItem("userid")
+
+/* AGAR LOGIN NAHI HAI */
+
+if(!studentId){
+
+    alert("Please Login First")
+
+    window.location.href =
+    "../Authentication/LoginPage.html"
+
+}
+
+/* FETCH APPLIED JOBS */
+
+fetch(
+`http://localhost:4000/student/applied-jobs/${studentId}`
+)
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    console.log(data)
+
+    appliedJobsContainer.innerHTML = ""
+
+    /* NO JOBS */
+
+    if(data.length === 0){
+
+        appliedJobsContainer.innerHTML = `
+
+        <tr>
+
+            <td colspan="4"
+            style="text-align:center;padding:20px;">
+
+            No Applied Jobs Found
+
+            </td>
+
+        </tr>
+
+        `
+
+        return
+    }
+
+    /* SHOW JOBS */
+
+    data.forEach((job)=>{
+
+        let status = job.status || "Pending"
+
+        let statusClass = ""
+
+        if(status.toLowerCase() === "pending"){
+
+            statusClass = "pending"
+
+        }
+
+        else if(status.toLowerCase() === "shortlisted"){
+
+            statusClass = "shortlisted"
+
+        }
+
+        else if(status.toLowerCase() === "rejected"){
+
+            statusClass = "rejected"
+
+        }
+
+        else if(status.toLowerCase() === "selected"){
+
+            statusClass = "selected"
+
+        }
+
+        appliedJobsContainer.innerHTML += `
+
+        <tr>
+
+            <td>${job.company_name}</td>
+
+            <td>${job.role}</td>
+
+            <td>
+
+                ${new Date(job.applied_at)
+                .toLocaleDateString()}
+
+            </td>
+
+            <td>
+
+                <span class="status ${statusClass}">
+
+                    ${status}
+
+                </span>
+
+            </td>
+
+        </tr>
+
+        `
+
+    })
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+    appliedJobsContainer.innerHTML = `
+
+    <tr>
+
+        <td colspan="4"
+        style="text-align:center;color:red;padding:20px;">
+
+        Error Loading Applications
+
+        </td>
+
+    </tr>
+
+    `
+
+})
+
+</script>
+
+</body>
+</html>9+

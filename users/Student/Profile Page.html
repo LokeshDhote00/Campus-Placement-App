@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#111827;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{color:#22c55e;margin-bottom:30px;}
+.sidebar a{
+display:block;
+color:#d1d5db;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#1f2937;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+background:#22c55e;
+padding:15px 20px;
+border-radius:12px;
+color:#052e16;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* PROFILE CARD */
+.profile{
+margin-top:20px;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+display:flex;
+gap:20px;
+align-items:center;
+}
+.profile img{
+width:100px;
+height:100px;
+border-radius:50%;
+}
+.profile-info h3{margin-bottom:5px;}
+.profile-info p{color:#555;}
+
+/* GRID */
+.grid{
+margin-top:20px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+/* BOX */
+.box{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+.box h4{margin-bottom:10px;color:#22c55e;}
+
+/* LIST */
+ul{padding-left:18px;}
+li{margin-bottom:6px;}
+
+/* BUTTON */
+.btn{
+padding:8px 12px;
+border:none;
+background:#22c55e;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+.btn:hover{background:#16a34a;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.grid{grid-template-columns:1fr;}
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+.profile{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>Student Panel</h2>
+<a href="StudentDashboard.html">🏠 Dashboard</a>
+<a href="../Authentication/STUDENT DETAILS.html">💼 Upload Details</a>
+<a href="Job Listings Page.html" >📄Jobs</a>
+<a href="Applied Jobs Page.html">📄 Applications</a>
+<a href="Profile Page.html" class="active">👤 Profile</a>
+<a href="Notifications Page.html">🔔 Notifications</a>
+<a href="Referral Request Page.html">🔗 Referral</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>My Profile 👤</h3>
+<button class="btn">Edit Profile</button>
+</div>
+
+<!-- PROFILE CARD -->
+<div class="profile">
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+<div class="profile-info">
+<h3 id="fullname"></h3>
+<p id="email"></p>
+<p id="location"></p>
+</div>
+</div>
+
+<!-- GRID -->
+<div class="grid">
+
+<!-- ACADEMIC -->
+<div class="box">
+<h4>Academic Details</h4>
+<p><strong>Branch:</strong> <span id="branch"></span></p>
+<p><strong>Year:</strong><span id="year"></span></p>
+<p><strong>CGPA:</strong>  <span id="cgpa"></span></p>
+</div>
+
+<!-- SKILLS -->
+<div class="box">
+<h4>Skills</h4>
+<ul id="skills">
+<li>Java</li>
+<li>React</li>
+<li>Node.js</li>
+<li>MongoDB</li>
+</ul>
+</div>
+
+<!-- PROJECTS -->
+<div class="box">
+<h4>Projects</h4>
+<ul id="projects">
+<li>Placement Portal System</li>
+<li>E-commerce Website</li>
+</ul>
+</div>
+
+<!-- RESUME -->
+<div class="box">
+<h4>Resume</h4>
+<p><a id="resume" target="_blank" href="#">View Resume</a></p>
+</div>
+
+</div>
+
+</div>
+
+</body>
+<script>
+
+async function loadProfile(){
+
+    const userid = localStorage.getItem("userid")
+
+    const Rawresponse = await fetch(
+        `http://localhost:4000/student/profile/${userid}`
+    )
+
+    const APIresponse = await Rawresponse.json()
+
+    if(APIresponse.success){
+
+        const user = APIresponse.data
+
+        document.getElementById("fullname").innerText = user.fullname
+
+        document.getElementById("email").innerText = user.email
+
+        document.getElementById("location").innerText =
+        "📍 " + user.location
+
+        document.getElementById("branch").innerText = user.branch
+
+        document.getElementById("year").innerText = user.year
+
+        document.getElementById("cgpa").innerText = user.cgpa
+
+        document.getElementById("resume").href = user.resume_link
+
+        // Skills
+        const skillsArray = user.skills.split(",")
+
+        let skillsHTML = ""
+
+        skillsArray.forEach(skill => {
+
+            skillsHTML += `<li>${skill}</li>`
+
+        })
+
+        document.getElementById("skills").innerHTML = skillsHTML
+
+        // Projects
+        const projectsArray = user.projects.split(",")
+
+        let projectHTML = ""
+
+        projectsArray.forEach(project => {
+
+            projectHTML += `<li>${project}</li>`
+
+        })
+
+        document.getElementById("projects").innerHTML = projectHTML
+
+    }
+
+}
+
+loadProfile()
+
+</script>
+</html>

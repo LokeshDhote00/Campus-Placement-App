@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Signup - Placement Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 380px;
+      padding: 30px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    .container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      outline: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .input-group input::placeholder {
+      color: #ddd;
+    }
+
+    .input-group select option {
+      color: black;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(45deg, #36d1dc, #5b86e5);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .extra {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .extra a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+
+    .extra a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Sign Up</h2>
+
+    <form id="signupForm">
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" placeholder="Enter your name" id="uname" required>
+      </div>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" placeholder="Enter your email" id="email" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" placeholder="Create password" id="passw" required>
+      </div>
+
+      <div class="input-group">
+        <label>Role</label>
+        <select  id="role" required>
+          <option value="">Select Role</option>
+          <option value="student">Student</option>
+          <option value="tpo">TPO</option>
+        </select>
+      </div>
+
+      <button class="btn" type="submit">Create Account</button>
+    </form>
+
+    <div class="extra">
+      <p>Already have an account? <a href="#">Login</a></p>
+    </div>
+  </div>
+
+</body>
+<!-- <script>
+   unameObj=document.getElementById("uname")
+        uemailObj=document.getElementById("email")
+        upassObj=document.getElementById("passw")
+        uroleObj=document.getElementById("role")
+
+        async function  validate(){
+            const payload={
+                username:unameObj.value,
+                password:upassObj.value,
+                role:uroleObj.value,
+                email:uemailObj.value
+            }
+        //     if(upassObj.value!=upassObj1.value){
+        //  alert("Password mismatched")
+        // }
+
+        const Rawresponse=await fetch("http://localhost:4000/auth/signup",{
+            method:"POST",
+            headers:{
+                "content-type":"application/json"
+            },
+            body:JSON.stringify(payload)
+        })
+
+        const APIresponse=await Rawresponse.json()
+        alert(APIresponse.message)
+        }
+</script> -->
+<script>
+const unameObj = document.getElementById("uname");
+const uemailObj = document.getElementById("email");
+const upassObj = document.getElementById("passw");
+const uroleObj = document.getElementById("role");
+
+document.getElementById("signupForm").addEventListener("submit", async function(e){
+    e.preventDefault(); // 🔥 page reload rokega
+
+    const payload = {
+        username: unameObj.value,
+        email: uemailObj.value,
+        password: upassObj.value,
+        role: uroleObj.value
+    };
+
+    console.log("Payload:", payload); // DEBUG
+
+    try {
+        const Rawresponse = await fetch("http://localhost:4000/auth/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const APIresponse = await Rawresponse.json();
+        alert(APIresponse.message);
+        window.location.href = "LoginPage.html";
+
+    } catch (err) {
+        console.log(err);
+        alert("Server error");
+    }
+});
+</script>
+</html>

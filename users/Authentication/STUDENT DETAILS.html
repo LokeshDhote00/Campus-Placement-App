@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f1f5f9}
+
+/* NAVBAR */
+.navbar{
+background:#1e293b;
+color:white;
+padding:15px 30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+.navbar h2{color:#38bdf8;}
+.navbar a{
+color:white;
+margin-left:15px;
+text-decoration:none;
+}
+
+/* CONTAINER */
+.container{
+max-width:900px;
+margin:30px auto;
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* TITLE */
+.container h2{
+margin-bottom:20px;
+color:#1e293b;
+}
+
+/* FORM */
+.form-group{
+margin-bottom:15px;
+}
+label{
+display:block;
+margin-bottom:5px;
+font-size:14px;
+}
+input, select, textarea{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+textarea{height:100px;resize:none;}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+/* BUTTON */
+.btn{
+margin-top:15px;
+padding:12px;
+width:100%;
+border:none;
+background:#3b82f6;
+color:white;
+border-radius:8px;
+cursor:pointer;
+font-size:15px;
+}
+.btn:hover{background:#2563eb;}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+<h2>Placement Portal</h2>
+<!-- <div>
+<a href="#">Dashboard</a>
+<a href="#">Jobs</a>
+<a href="#">Profile</a>
+<a href="#">Logout</a>
+</div> -->
+</div>
+
+<!-- FORM CONTAINER -->
+<div class="container">
+
+<h2>Student Information Form 📝</h2>
+
+<form onsubmit="return saveStudent()">
+
+<div class="grid">
+
+<div class="form-group">
+<label>Full Name</label>
+<input type="text" id="fullname" placeholder="Enter your name">
+</div>
+
+<div class="form-group">
+<label>Email</label>
+<input type="email" id="email" placeholder="Enter your email">
+</div>
+
+<div class="form-group">
+<label>Phone Number</label>
+<input type="text" id="phone" placeholder="Enter phone number">
+</div>
+
+<div class="form-group">
+<label>Branch</label>
+<select id="branch">
+<option>CSE</option>
+<option>IT</option>
+<option>ECE</option>
+<option>ME</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Year</label>
+<select id="year">
+<option>1st Year</option>
+<option>2nd Year</option>
+<option>3rd Year</option>
+<option>Final Year</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>CGPA</label>
+<input type="number" id="cgpa" step="0.1" placeholder="Enter CGPA">
+</div>
+
+</div>
+
+<div class="form-group">
+<label>Skills</label>
+<input type="text" id="skills" placeholder="e.g. Java, React, Python">
+</div>
+
+<div class="form-group">
+<label>Projects</label>
+<textarea id="projects" placeholder="Describe your projects"></textarea>
+</div>
+
+<div class="form-group">
+<label>Resume Link</label>
+<input id="resume" type="text" placeholder="Google Drive / Cloud link">
+</div>
+
+<div class="form-group">
+<label>Preferred Job Role</label>
+<input type="text" id="jobrole" placeholder="e.g. Software Engineer">
+</div>
+
+<div class="form-group">
+<label>Preferred Location</label>
+<input type="text" id="location" placeholder="e.g. Bangalore, Remote">
+</div>
+
+<button type="submit" class="btn">Submit Details</button>
+
+</form>
+
+</div>
+
+</body>
+<script>
+
+async function saveStudent(){
+    
+    const payload = {
+        user_id:Number(localStorage.getItem("userid")),
+        fullname:document.getElementById("fullname").value,
+        email:document.getElementById("email").value,
+        phone:document.getElementById("phone").value,
+        branch:document.getElementById("branch").value,
+        year:document.getElementById("year").value,
+        cgpa:document.getElementById("cgpa").value,
+        skills:document.getElementById("skills").value,
+        projects:document.getElementById("projects").value,
+        resume:document.getElementById("resume").value,
+        jobrole:document.getElementById("jobrole").value,
+        location:document.getElementById("location").value
+
+    }
+
+console.log(payload)
+    const Rawresponse = await fetch("http://localhost:4000/student/add-details",{
+
+        method:"POST",
+
+        headers:{
+            "content-type":"application/json"
+        },
+
+        body:JSON.stringify(payload)
+
+    })
+
+    const APIresponse = await Rawresponse.json()
+
+    alert(APIresponse.message)
+
+    return false
+}
+
+</script>
+</html>

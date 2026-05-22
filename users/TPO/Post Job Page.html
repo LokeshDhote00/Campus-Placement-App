@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TPO - Post Job</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#1e293b;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{
+margin-bottom:30px;
+color:#38bdf8;
+}
+.sidebar a{
+display:block;
+color:#cbd5f5;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#334155;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#38bdf8;
+padding:15px 20px;
+border-radius:12px;
+color:#0f172a;
+}
+
+/* FORM */
+.form-box{
+margin-top:25px;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+max-width:900px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+}
+
+.group{
+display:flex;
+flex-direction:column;
+}
+.group label{
+margin-bottom:5px;
+font-weight:500;
+}
+.group input,
+.group select,
+.group textarea{
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* FULL WIDTH */
+.full{
+grid-column:span 2;
+}
+
+/* BUTTON */
+.btn{
+margin-top:20px;
+padding:12px;
+width:100%;
+background:#38bdf8;
+border:none;
+color:#0f172a;
+font-weight:600;
+border-radius:8px;
+cursor:pointer;
+}
+.btn:hover{
+background:#0ea5e9;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.grid{grid-template-columns:1fr;}
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>TPO Panel</h2>
+<a href="TPODashboard.html">🏠 Dashboard</a>
+<a href="Post Job Page.html" class="active">💼 Post Job</a>
+<a href="View Applications Page.html">📄 Applications</a>
+<a href="Student List Page.html">👨‍🎓 Students</a>
+<a href="Manage Jobs Page.html" >📋 Manage Jobs</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Post New Opportunity 💼</h3>
+<span>TPO Control Panel</span>
+</div>
+
+<!-- FORM -->
+<div class="form-box">
+
+<form onsubmit="return postJob()">
+
+<div class="grid">
+
+<div class="group">
+<label>Company Name</label>
+<input type="text"  id="company" placeholder="e.g. Infosys">
+</div>
+
+<div class="group">
+<label>Job Role</label>
+<input type="text" id="jobrole" placeholder="e.g. Backend Developer">
+</div>
+
+<div class="group">
+<label>Package (LPA)</label>
+<input type="number"  id="package" placeholder="e.g. 6">
+</div>
+
+<div class="group">
+<label>Job Type</label>
+<select  id="jobtype">
+<option>Full-Time</option>
+<option>Internship</option>
+</select>
+</div>
+
+<div class="group">
+<label>Location</label>
+<input type="text" id="location" placeholder="e.g. Pune">
+</div>
+
+<div class="group">
+<label>Deadline</label>
+<input type="date"  id="deadline">
+</div>
+
+<div class="group full">
+<label>Required Skills</label>
+<input type="text" id="skills" placeholder="Java, Spring Boot, SQL">
+</div>
+
+<div class="group full">
+<label>Eligibility</label>
+<textarea rows="3" id="eligibility" placeholder="e.g. 60% throughout, no backlog"></textarea>
+</div>
+
+<div class="group full">
+<label>Description</label>
+<textarea rows="4" id="description" placeholder="Enter job details..."></textarea>
+</div>
+
+</div>
+
+<button type="submit" class="btn">Post Job</button>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+<script>
+
+async function postJob(){
+
+    const payload = {
+        created_by:Number(localStorage.getItem("userid")),
+        company:document.getElementById("company").value,
+        jobrole:document.getElementById("jobrole").value,
+        package:document.getElementById("package").value,
+        jobtype:document.getElementById("jobtype").value,
+        location:document.getElementById("location").value,
+        deadline:document.getElementById("deadline").value,
+        skills:document.getElementById("skills").value,
+        eligibility:document.getElementById("eligibility").value,
+        description:document.getElementById("description").value
+
+    }
+
+    const Rawresponse = await fetch("http://localhost:4000/tpo/post-job",{
+
+        method:"POST",
+
+        headers:{
+            "content-type":"application/json"
+        },
+
+        body:JSON.stringify(payload)
+
+    })
+
+    const APIresponse = await Rawresponse.json()
+
+    alert(APIresponse.message)
+
+    return false
+}
+
+</script>
+</html>

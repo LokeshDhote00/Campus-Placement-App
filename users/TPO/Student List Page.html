@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TPO - Students</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#1e293b;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{color:#38bdf8;margin-bottom:30px;}
+.sidebar a{
+display:block;
+color:#cbd5f5;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#334155;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#38bdf8;
+padding:15px 20px;
+border-radius:12px;
+color:#0f172a;
+}
+
+/* ACTION BAR */
+.actions{
+margin:20px 0;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+.actions input,
+.actions select{
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* TABLE */
+.table{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+overflow-x:auto;
+}
+table{
+width:100%;
+border-collapse:collapse;
+}
+th,td{
+padding:12px;
+text-align:left;
+}
+th{background:#f1f5f9;}
+tr:hover{background:#f9fafc;}
+
+/* STATUS */
+.status{
+padding:5px 10px;
+border-radius:20px;
+color:white;
+font-size:12px;
+}
+.placed{background:#10b981;}
+.notplaced{background:#ef4444;}
+
+/* BUTTON */
+.btn{
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+margin-right:5px;
+}
+.view{background:#3b82f6;color:white;}
+.resume{background:#6366f1;color:white;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>TPO Panel</h2>
+<a href="TPODashboard.html">🏠 Dashboard</a>
+<a href="Post Job Page.html">💼 Post Job</a>
+<a href="View Applications Page.html">📄 Applications</a>
+<a href="Student List Page.html" class="active">👨‍🎓 Students</a>
+<a href="Manage Jobs Page.html" >📋 Manage Jobs</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Student Management 👨‍🎓</h3>
+<span>Monitor student data</span>
+</div>
+
+<!-- ACTION BAR -->
+<div class="actions">
+<input type="text" placeholder="Search student...">
+
+<select>
+<option>All Department</option>
+<option>CSE</option>
+<option>IT</option>
+<option>ME</option>
+</select>
+
+<select>
+<option>All Year</option>
+<option>Final Year</option>
+<option>3rd Year</option>
+</select>
+</div>
+
+<!-- TABLE -->
+<div class="table">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Department</th>
+<th>CGPA</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody id="studentsContainer">
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+</body>
+<script>
+
+const studentsContainer =
+document.getElementById(
+"studentsContainer"
+)
+
+const searchInput =
+document.querySelector(
+".actions input"
+)
+
+const departmentFilter =
+document.querySelectorAll(
+".actions select"
+)[0]
+
+const yearFilter =
+document.querySelectorAll(
+".actions select"
+)[1]
+
+let allStudents = []
+
+/* FETCH STUDENTS */
+
+fetch(
+"http://localhost:4000/tpo/students"
+)
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    console.log(data)
+
+    allStudents = data.data
+
+    displayStudents(allStudents)
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+})
+
+/* DISPLAY STUDENTS */
+
+function displayStudents(students){
+
+    studentsContainer.innerHTML = ""
+
+    /* NO STUDENTS */
+
+    if(students.length === 0){
+
+        studentsContainer.innerHTML = `
+
+        <tr>
+
+            <td
+            colspan="6"
+            style="
+            text-align:center;
+            padding:20px;
+            "
+            >
+
+            No Students Found
+
+            </td>
+
+        </tr>
+
+        `
+
+        return
+    }
+
+    students.forEach((student)=>{
+
+        let statusClass =
+        student.cgpa >= 7
+        ?
+        "placed"
+        :
+        "notplaced"
+
+        let statusText =
+        student.cgpa >= 7
+        ?
+        "Eligible"
+        :
+        "Low CGPA"
+
+        studentsContainer.innerHTML += `
+
+        <tr>
+
+            <td>
+
+            ${student.fullname}
+
+            </td>
+
+            <td>
+
+            ${student.email}
+
+            </td>
+
+            <td>
+
+            ${student.branch}
+
+            </td>
+
+            <td>
+
+            ${student.cgpa}
+
+            </td>
+
+            <td>
+
+                <span
+                class="status ${statusClass}"
+                >
+
+                ${statusText}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                <button
+                class="btn view"
+                onclick="
+                viewStudent(
+                ${student.user_id}
+                )
+                "
+                >
+
+                View
+
+                </button>
+
+                <button
+                class="btn resume"
+                onclick="
+                openResume(
+                '${student.resume_link}'
+                )
+                "
+                >
+
+                Resume
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `
+
+    })
+
+}
+
+/* FILTER FUNCTION */
+
+function filterStudents(){
+
+    const searchText =
+    searchInput.value.toLowerCase()
+
+    const selectedDepartment =
+    departmentFilter.value.toLowerCase()
+
+    const selectedYear =
+    yearFilter.value.toLowerCase()
+
+    const filteredStudents =
+    allStudents.filter((student)=>{
+
+        const fullname =
+        student.fullname.toLowerCase()
+
+        const email =
+        student.email.toLowerCase()
+
+        const branch =
+        student.branch.toLowerCase()
+
+        const year =
+        String(student.year).toLowerCase()
+
+        /* SEARCH */
+
+        const matchesSearch =
+
+            fullname.includes(searchText)
+
+            ||
+
+            email.includes(searchText)
+
+        /* DEPARTMENT */
+
+        const matchesDepartment =
+
+            selectedDepartment ===
+            "all department"
+
+            ||
+
+            branch ===
+            selectedDepartment
+
+        /* YEAR */
+
+        const matchesYear =
+
+            selectedYear ===
+            "all year"
+
+            ||
+
+            year.includes(selectedYear)
+
+        return(
+
+            matchesSearch
+
+            &&
+
+            matchesDepartment
+
+            &&
+
+            matchesYear
+
+        )
+
+    })
+
+    displayStudents(filteredStudents)
+
+}
+
+/* EVENT LISTENERS */
+
+searchInput.addEventListener(
+    "input",
+    filterStudents
+)
+
+departmentFilter.addEventListener(
+    "change",
+    filterStudents
+)
+
+yearFilter.addEventListener(
+    "change",
+    filterStudents
+)
+
+/* VIEW PROFILE */
+
+function viewStudent(userid){
+
+    window.location.href =
+    `StudentProfile.html?id=${userid}`
+
+}
+
+/* OPEN RESUME */
+
+function openResume(link){
+
+    if(link && link !== "null"){
+
+        window.open(link,"_blank")
+
+    }
+
+    else{
+
+        alert(
+        "Resume Not Uploaded"
+        )
+
+    }
+
+}
+
+</script>
+</html>

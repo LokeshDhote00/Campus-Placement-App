@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TPO - Applications</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#1e293b;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{color:#38bdf8;margin-bottom:30px;}
+.sidebar a{
+display:block;
+color:#cbd5f5;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#334155;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#38bdf8;
+padding:15px 20px;
+border-radius:12px;
+color:#0f172a;
+}
+
+/* ACTION BAR */
+.actions{
+margin:20px 0;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+.actions input,
+.actions select{
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* TABLE */
+.table{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+overflow-x:auto;
+}
+table{
+width:100%;
+border-collapse:collapse;
+}
+th,td{
+padding:12px;
+text-align:left;
+}
+th{background:#f1f5f9;}
+tr:hover{background:#f9fafc;}
+
+/* STATUS */
+.status{
+padding:5px 10px;
+border-radius:20px;
+color:white;
+font-size:12px;
+}
+.pending{background:#f59e0b;}
+.shortlisted{background:#3b82f6;}
+.selected{background:#10b981;}
+.rejected{background:#ef4444;}
+
+/* BUTTONS */
+.btn{
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+margin-right:5px;
+}
+.shortlist{background:#3b82f6;color:white;}
+.select{background:#10b981;color:white;}
+.reject{background:#ef4444;color:white;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>TPO Panel</h2>
+<a href="TPODashboard.html">🏠 Dashboard</a>
+<a href="Post Job Page.html">💼 Post Job</a>
+<a href="View Applications Page.html" class="active">📄 Applications</a>
+<a href="Student List Page.html">👨‍🎓 Students</a>
+<a href="Manage Jobs Page.html">📋 Manage Jobs</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Applications Management 📄</h3>
+<span>Review & update status</span>
+</div>
+
+<!-- ACTION BAR -->
+<div class="actions">
+<input
+type="text"
+id="searchInput"
+placeholder="Search by name..."
+>
+
+<select id="statusFilter">
+<option>All Status</option>
+<option>Pending</option>
+<option>Shortlisted</option>
+<option>Selected</option>
+<option>Rejected</option>
+</select>
+
+<select id="companyFilter">
+<option>All Companies</option>
+</select>
+</div>
+
+<!-- TABLE -->
+<div class="table">
+<table>
+
+<thead>
+
+<tr>
+<th>Student</th>
+<th>Company</th>
+<th>Role</th>
+<th>Resume</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody id="applicationsContainer">
+
+</tbody>
+
+</table>
+</div>
+
+</div>
+
+</body>
+<script>
+
+const applicationsContainer =
+document.getElementById(
+"applicationsContainer"
+)
+
+const searchInput =
+document.getElementById(
+"searchInput"
+)
+
+const statusFilter =
+document.getElementById(
+"statusFilter"
+)
+
+const companyFilter =
+document.getElementById(
+"companyFilter"
+)
+
+let allApplications = []
+
+/* FETCH APPLICATIONS */
+
+fetch(
+"http://localhost:4000/tpo/applications"
+)
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    console.log(data)
+
+    allApplications = data.data
+
+    displayApplications(allApplications)
+
+    loadCompanies(allApplications)
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+})
+
+/* DISPLAY APPLICATIONS */
+
+function displayApplications(applications){
+
+    applicationsContainer.innerHTML = ""
+
+    if(applications.length === 0){
+
+        applicationsContainer.innerHTML = `
+
+        <tr>
+
+        <td colspan="6"
+        style="
+        text-align:center;
+        padding:20px;
+        "
+        >
+
+        No Applications Found
+
+        </td>
+
+        </tr>
+
+        `
+
+        return
+    }
+
+    applications.forEach((app)=>{
+
+        let statusClass =
+        app.status.toLowerCase()
+
+        applicationsContainer.innerHTML += `
+
+        <tr>
+
+        <td>
+
+        ${app.fullname}
+
+        </td>
+
+        <td>
+
+        ${app.company_name}
+
+        </td>
+
+        <td>
+
+        ${app.role}
+
+        </td>
+
+        <td>
+
+        <a
+        href="${app.resume_link}"
+        target="_blank"
+        >
+
+        View
+
+        </a>
+
+        </td>
+
+        <td>
+
+        <span
+        class="status ${statusClass}"
+        >
+
+        ${app.status}
+
+        </span>
+
+        </td>
+
+        <td>
+
+        <button
+        class="btn shortlist"
+        onclick="
+        updateStatus(
+        ${app.application_id},
+        'Shortlisted'
+        )
+        "
+        >
+
+        Shortlist
+
+        </button>
+
+        <button
+        class="btn select"
+        onclick="
+        updateStatus(
+        ${app.application_id},
+        'Selected'
+        )
+        "
+        >
+
+        Select
+
+        </button>
+
+        <button
+        class="btn reject"
+        onclick="
+        updateStatus(
+        ${app.application_id},
+        'Rejected'
+        )
+        "
+        >
+
+        Reject
+
+        </button>
+
+        </td>
+
+        </tr>
+
+        `
+
+    })
+
+}
+
+/* LOAD COMPANIES */
+
+/* FETCH ALL COMPANIES */
+/* LOAD COMPANIES */
+
+function loadCompanies(jobs){
+
+    const companies = [
+
+        ...new Set(
+
+            jobs.map(
+                job => job.company_name
+            )
+
+        )
+
+    ]
+
+    companies.forEach((company)=>{
+
+        companyFilter.innerHTML += `
+
+        <option>
+
+        ${company}
+
+        </option>
+
+        `
+
+    })
+
+}
+/* FILTER */
+
+function filterApplications(){
+
+    const searchText =
+    searchInput.value.toLowerCase()
+
+    const selectedStatus =
+    statusFilter.value.toLowerCase()
+
+    const selectedCompany =
+    companyFilter.value.toLowerCase()
+
+    const filteredApplications =
+    allApplications.filter((app)=>{
+
+        const fullname =
+        app.fullname.toLowerCase()
+
+        const company =
+        app.company_name.toLowerCase()
+
+        const status =
+        app.status.toLowerCase()
+
+        const matchesSearch =
+
+            fullname.includes(searchText)
+
+        const matchesStatus =
+
+            selectedStatus ===
+            "all status"
+
+            ||
+
+            status ===
+            selectedStatus
+
+        const matchesCompany =
+
+            selectedCompany ===
+            "all companies"
+
+            ||
+
+            company ===
+            selectedCompany
+
+        return(
+
+            matchesSearch
+
+            &&
+
+            matchesStatus
+
+            &&
+
+            matchesCompany
+
+        )
+
+    })
+
+    displayApplications(
+        filteredApplications
+    )
+
+}
+
+/* EVENTS */
+
+searchInput.addEventListener(
+    "input",
+    filterApplications
+)
+
+statusFilter.addEventListener(
+    "change",
+    filterApplications
+)
+
+companyFilter.addEventListener(
+    "change",
+    filterApplications
+)
+
+/* UPDATE STATUS */
+
+function updateStatus(
+    applicationId,
+    status
+){
+
+    fetch(
+    "http://localhost:4000/tpo/update-application-status",
+    {
+
+        method:"PUT",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            application_id:
+            applicationId,
+
+            status:status
+
+        })
+
+    })
+
+    .then((response)=>response.json())
+
+    .then((data)=>{
+
+        alert(data.message)
+
+        /* LOCAL DATA UPDATE */
+
+        allApplications =
+        allApplications.map((app)=>{
+
+            if(
+                app.application_id
+                ===
+                applicationId
+            ){
+
+                return {
+
+                    ...app,
+
+                    status:status
+
+                }
+
+            }
+
+            return app
+
+        })
+
+        /* REFRESH TABLE */
+
+        filterApplications()
+
+    })
+
+    .catch((err)=>{
+
+        console.log(err)
+
+    })
+
+}
+
+</script>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TPO - Manage Jobs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:#f1f5f9}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#1e293b;
+color:white;
+padding:20px;
+position:fixed;
+}
+.sidebar h2{color:#38bdf8;margin-bottom:30px;}
+.sidebar a{
+display:block;
+color:#cbd5f5;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active{
+background:#334155;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#38bdf8;
+padding:15px 20px;
+border-radius:12px;
+color:#0f172a;
+}
+
+/* ACTION BAR */
+.actions{
+margin:20px 0;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+.actions input,
+.actions select{
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* TABLE */
+.table{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+overflow-x:auto;
+}
+table{
+width:100%;
+border-collapse:collapse;
+}
+th,td{
+padding:12px;
+text-align:left;
+}
+th{background:#f1f5f9;}
+tr:hover{background:#f9fafc;}
+
+/* STATUS */
+.status{
+padding:5px 10px;
+border-radius:20px;
+color:white;
+font-size:12px;
+}
+.active{background:#10b981;}
+.closed{background:#ef4444;}
+
+/* BUTTONS */
+.btn{
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+margin-right:5px;
+}
+.edit{background:#3b82f6;color:white;}
+.delete{background:#ef4444;color:white;}
+.view{background:#6366f1;color:white;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.sidebar{width:180px;}
+.main{margin-left:180px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>TPO Panel</h2>
+<a href="TPODashboard.html">🏠 Dashboard</a>
+<a href="Post Job Page.html">💼 Post Job</a>
+<a href="View Applications Page.html">📄 Applications</a>
+<a href="Student List Page.html">👨‍🎓 Students</a>
+<a href="Manage Jobs Page.html" class="active">📋 Manage Jobs</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Manage Jobs 📋</h3>
+<span>Edit & control job postings</span>
+</div>
+
+<!-- ACTION BAR -->
+<div class="actions">
+<input
+type="text"
+id="searchInput"
+placeholder="Search jobs..."
+>
+<select id="statusFilter">
+<option>All Status</option>
+<option>Active</option>
+<option>Closed</option>
+</select>
+
+<select id="companyFilter">
+<option>All Companies</option>
+</select>
+</div>
+
+<!-- TABLE -->
+<div class="table">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Company</th>
+<th>Role</th>
+<th>Package</th>
+<th>Deadline</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody id="jobsContainer">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</body>
+<script>
+
+const jobsContainer =
+document.getElementById("jobsContainer")
+
+const searchInput =
+document.getElementById("searchInput")
+
+const statusFilter =
+document.getElementById("statusFilter")
+
+const companyFilter =
+document.getElementById("companyFilter")
+
+let allJobs = []
+
+/* FETCH JOBS */
+
+fetch(
+"http://localhost:4000/tpo/manage-jobs"
+)
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    allJobs = data.data
+
+    displayJobs(allJobs)
+
+    loadCompanies(allJobs)
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+})
+
+/* DISPLAY JOBS */
+
+function displayJobs(jobs){
+
+    const tbody =
+    document.querySelector("table tbody")
+
+    tbody.innerHTML = ""
+
+    if(jobs.length === 0){
+
+        tbody.innerHTML = `
+
+        <tr>
+
+        <td colspan="6">
+
+        No Jobs Found
+
+        </td>
+
+        </tr>
+
+        `
+
+        return
+    }
+
+    jobs.forEach((job)=>{
+
+        let statusClass =
+        job.status.toLowerCase()
+
+        tbody.innerHTML += `
+
+        <tr>
+
+        <td>
+        ${job.company_name}
+        </td>
+
+        <td>
+        ${job.role}
+        </td>
+
+        <td>
+        ${job.package}
+        </td>
+
+        <td>
+        ${new Date(job.deadline)
+        .toLocaleDateString()}
+        </td>
+
+        <td>
+
+        <span
+        class="status ${statusClass}"
+        onclick="
+        toggleStatus(
+        ${job.id},
+        '${job.status}'
+        )
+        "
+        style="cursor:pointer"
+        >
+
+        ${job.status}
+
+        </span>
+
+        </td>
+
+        <td>
+
+
+        <button
+        class="btn delete"
+        onclick="
+        deleteJob(${job.id})
+        "
+        >
+
+        Delete
+
+        </button>
+
+        <button
+        class="btn view"
+        onclick="
+        viewApplications(${job.id})
+        "
+        >
+
+        Applications
+
+        </button>
+
+        </td>
+
+        </tr>
+
+        `
+
+    })
+
+}
+
+/* LOAD COMPANIES */
+
+function loadCompanies(jobs){
+
+    const companies = [
+
+        ...new Set(
+
+            jobs.map(
+                job => job.company_name
+            )
+
+        )
+
+    ]
+
+    companies.forEach((company)=>{
+
+        companyFilter.innerHTML += `
+
+        <option>
+
+        ${company}
+
+        </option>
+
+        `
+
+    })
+
+}
+
+/* FILTER */
+
+function filterJobs(){
+
+    const searchText =
+    searchInput.value.toLowerCase()
+
+    const selectedStatus =
+    statusFilter.value.toLowerCase()
+
+    const selectedCompany =
+    companyFilter.value.toLowerCase()
+
+    const filteredJobs =
+    allJobs.filter((job)=>{
+
+        const company =
+        job.company_name.toLowerCase()
+
+        const role =
+        job.role.toLowerCase()
+
+        const status =
+        job.status.toLowerCase()
+
+        const matchesSearch =
+
+            company.includes(searchText)
+            ||
+
+            role.includes(searchText)
+
+        const matchesStatus =
+
+            selectedStatus ===
+            "all status"
+            ||
+
+            status ===
+            selectedStatus
+
+        const matchesCompany =
+
+            selectedCompany ===
+            "all companies"
+            ||
+
+            company ===
+            selectedCompany
+
+        return(
+
+            matchesSearch
+            &&
+
+            matchesStatus
+            &&
+
+            matchesCompany
+
+        )
+
+    })
+
+    displayJobs(filteredJobs)
+
+}
+
+/* EVENTS */
+
+searchInput.addEventListener(
+    "input",
+    filterJobs
+)
+
+statusFilter.addEventListener(
+    "change",
+    filterJobs
+)
+
+companyFilter.addEventListener(
+    "change",
+    filterJobs
+)
+
+/* TOGGLE STATUS */
+
+function toggleStatus(
+    jobId,
+    currentStatus
+){
+
+    let newStatus = ""
+
+    if(currentStatus === "Active"){
+
+        newStatus = "Closed"
+
+    }
+
+    else{
+
+        newStatus = "Active"
+
+    }
+
+    fetch(
+    "http://localhost:4000/tpo/update-job-status",
+    {
+
+        method:"PUT",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            job_id:jobId,
+
+            status:newStatus
+
+        })
+
+    })
+
+    .then((response)=>response.json())
+
+    .then((data)=>{
+
+        alert(data.message)
+
+        allJobs =
+        allJobs.map((job)=>{
+
+            if(job.id === jobId){
+
+                return {
+
+                    ...job,
+
+                    status:newStatus
+
+                }
+
+            }
+
+            return job
+
+        })
+
+        filterJobs()
+
+    })
+
+}
+
+/* DELETE JOB */
+
+function deleteJob(jobId){
+
+    if(!confirm("Delete this job?")){
+
+        return
+
+    }
+
+    fetch(
+    `http://localhost:4000/tpo/delete-job/${jobId}`,
+    {
+
+        method:"DELETE"
+
+    })
+
+    .then((response)=>response.json())
+
+    .then((data)=>{
+
+        alert(data.message)
+
+        allJobs =
+        allJobs.filter(
+            job => job.id !== jobId
+        )
+
+        filterJobs()
+
+    })
+
+}
+
+/* VIEW APPLICATIONS */
+
+function viewApplications(jobId){
+
+    window.location.href =
+    `View Applications Page.html?job=${jobId}`
+
+}
+
+/* EDIT JOB */
+
+function editJob(jobId){
+
+    window.location.href =
+    `Edit Jobs.html?id=${jobId}`
+
+}
+
+</script>
+</html>

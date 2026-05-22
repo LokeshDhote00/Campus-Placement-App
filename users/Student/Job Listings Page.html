@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Job Listings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+display:flex;
+background:#f1f5f9;
+}
+
+/* SIDEBAR */
+.sidebar{
+width:230px;
+height:100vh;
+background:#111827;
+color:white;
+padding:20px;
+position:fixed;
+}
+
+.sidebar h2{
+color:#22c55e;
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:block;
+color:#d1d5db;
+text-decoration:none;
+margin:12px 0;
+padding:10px;
+border-radius:8px;
+transition:0.3s;
+}
+
+.sidebar a:hover,
+.sidebar a.active{
+background:#1f2937;
+color:white;
+}
+
+/* MAIN */
+.main{
+margin-left:230px;
+width:100%;
+padding:25px;
+}
+
+/* TOPBAR */
+.topbar{
+background:#22c55e;
+padding:15px 20px;
+border-radius:12px;
+color:#052e16;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* FILTERS */
+.filters{
+margin:20px 0;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.filters input,
+.filters select{
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* JOB CARDS */
+.jobs{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:20px;
+}
+
+.job-card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+transition:0.3s;
+}
+
+.job-card:hover{
+transform:translateY(-5px);
+}
+
+.job-card h3{
+color:#22c55e;
+margin-bottom:5px;
+}
+
+.job-card p{
+font-size:14px;
+color:#555;
+margin:4px 0;
+}
+
+/* BUTTON */
+.btn{
+margin-top:10px;
+padding:8px 12px;
+border:none;
+border-radius:6px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+.btn:hover{
+background:#16a34a;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>Student Panel</h2>
+
+<a href="StudentDashboard.html">🏠 Dashboard</a>
+<a href="../Authentication/STUDENT DETAILS.html">💼 Upload Details</a>
+<a href="Job Listings Page.html" class="active">📄 Jobs</a>
+<a href="Applied Jobs Page.html">📄 Applications</a>
+<a href="Profile Page.html">👤 Profile</a>
+<a href="Notifications Page.html">🔔 Notifications</a>
+<a href="../Authentication/LoginPage.html">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<h3>Available Jobs 💼</h3>
+<span>Find your opportunity</span>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+<input type="text" id="searchInput" placeholder="Search jobs...">
+
+<select id="locationFilter">
+<option>All Locations</option>
+<option>Bangalore</option>
+<option>Pune</option>
+<option>Remote</option>
+</select>
+
+<select id="typeFilter">
+<option>All Type</option>
+<option>Full-Time</option>
+<option>Internship</option>
+</select>
+</div>
+
+<!-- JOBS -->
+<div class="jobs" id="jobsContainer">
+
+</div>
+
+</div>
+<script>
+
+const jobsContainer =
+document.getElementById("jobsContainer")
+
+const searchInput =
+document.getElementById("searchInput")
+
+const locationFilter =
+document.getElementById("locationFilter")
+
+const typeFilter =
+document.getElementById("typeFilter")
+
+let allJobs = []
+
+/* FETCH JOBS */
+
+fetch("http://localhost:4000/tpo/get-jobs")
+
+.then((response)=>response.json())
+
+.then((data)=>{
+
+    console.log(data)
+
+    allJobs = data
+
+    displayJobs(allJobs)
+
+})
+
+.catch((err)=>{
+
+    console.log(err)
+
+})
+
+/* DISPLAY JOBS */
+
+function displayJobs(jobs){
+
+    jobsContainer.innerHTML = ""
+
+    if(jobs.length === 0){
+
+        jobsContainer.innerHTML = `
+
+        <h3>
+        No Jobs Found
+        </h3>
+
+        `
+
+        return
+    }
+
+    jobs.forEach((job)=>{
+
+        jobsContainer.innerHTML += `
+        
+        <div class="job-card">
+
+            <h3>${job.company_name}</h3>
+
+            <p>
+            <strong>Role:</strong>
+            ${job.role}
+            </p>
+
+            <p>
+            <strong>Package:</strong>
+            ${job.package}
+            </p>
+
+            <p>
+            <strong>Location:</strong>
+            ${job.location}
+            </p>
+
+            <p>
+            <strong>Job Type:</strong>
+            ${job.job_type}
+            </p>
+
+            <button
+            class="btn"
+            onclick="applyJob(${job.id})"
+            >
+
+            Apply
+
+            </button>
+
+        </div>
+        
+        `
+    })
+
+}
+
+/* FILTER FUNCTION */
+async function fetchJobs(){
+
+    const search =
+    searchInput.value
+
+    const location =
+    locationFilter.value
+
+    const type =
+    typeFilter.value
+
+    const response = await fetch(
+
+`http://localhost:4000/tpo/get-jobs?search=${search}&location=${location}&type=${type}`
+
+    )
+
+    const data = await response.json()
+
+    displayJobs(data)
+
+}
+
+/* INITIAL LOAD */
+
+fetchJobs()
+
+/* EVENTS */
+
+searchInput.addEventListener(
+    "input",
+    fetchJobs
+)
+
+locationFilter.addEventListener(
+    "change",
+    fetchJobs
+)
+
+typeFilter.addEventListener(
+    "change",
+    fetchJobs
+)
+
+function applyJob(jobId){
+
+    fetch(
+    "http://localhost:4000/tpo/apply-job",
+    {
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            student_id:
+            localStorage.getItem("userid"),
+
+            job_id:jobId
+
+        })
+
+    })
+
+    .then((response)=>response.json())
+
+    .then((data)=>{
+
+        console.log(data)
+
+        alert(data.message)
+
+        if(data.success){
+
+            window.location.href =
+            "Applied Jobs Page.html"
+
+        }
+
+    })
+
+    .catch((err)=>{
+
+        console.log(err)
+
+        alert("Something Went Wrong")
+
+    })
+
+}
+
+</script>
+</body>
+</html>
